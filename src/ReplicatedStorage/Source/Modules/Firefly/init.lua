@@ -89,8 +89,8 @@ Firefly.TexturesCollection = { }
 
 	Clones the Lighting's current Atmosphere if one exists to the ReplicatedStorage for quick enabling
 
-	Initialisation is complete, grab the start time
-	Inform the client of setup completion and give duration of setup ( Generally 0s )
+	Initialisation is complete, grab the finish time
+	Inform the client of setup completion and give duration of setup ( Generally < 1s )
 
 	Allow Firefly operations to run by setting Firefly.Loaded to true
 
@@ -182,14 +182,16 @@ end
 	Get the current setting of the given property
 
 	@param {String} property	the property to check the toggle value of
+	@return {boolean|dictionary} value|Current	--> The value of the toggle or the list of toggles
 ]]
 function Firefly:GetToggle(property) --> "Materials", "PostEffects", "Textures", "Atmosphere", "Lighting"
 	if property == "Lighting" then
 		return self.Current[property].GlobalShadows --> Lighting only has GlobalShadows to be modified so until changed, this is how it be
-	else
+	elseif property~="Lighting" and property~=nil then
 		return self.Current[property]
+	else
+		return self.Current --> If the toggle doesn't exist or isn't requested will return the current preset
 	end
-	return self.Current --> If the toggle doesn't exist or isn't requested will return the current preset
 end
 
 function Firefly:ToggleMaterials(isMaterialsEnabled)
@@ -233,7 +235,7 @@ function Firefly:ToggleAtmosphere(isAtmosphereEnabled)
 	else
 		-- remove the atmosphere / turn it off
 		if not (Lighting:FindFirstChild("Atmosphere")) then
-			print("Atmosphere object does not exist")
+			return self
 		else
 			Lighting:FindFirstChild("Atmosphere"):Destroy()
 		end
